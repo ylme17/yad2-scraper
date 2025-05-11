@@ -4,15 +4,18 @@
   "projects": [
     {
       "topic": "Fitness bench",
-      "url": "https://market.yad2.co.il/collections/%D7%A1%D7%A4%D7%95%D7%A8%D7%98-%D7%95%D7%A4%D7%A0%D7%90%D7%99_%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%D7%99-%D7%9B%D7%95%D7%A9%D7%A8_%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%D7%99-%D7%9B%D7%95%D7%A9%D7%A8-%D7%91%D7%99%D7%AA%D7%99%D7%99%D7%9D?filters=%5B%5B%22Isp-tag-%D7%A1%D7%95%D7%92+%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%22%2C%22attr-Device+Type%3A%D7%A1%D7%A4%D7%AA+%D7%9B%D7%95%D7%A9%D7%A8%22%5D%5D&min_price=10&max_price=500&sortBy=creation_date"
+      "url": "https://market.yad2.co.il/collections/%D7%A1%D7%A4%D7%95%D7%A8%D7%98-%D7%95%D7%A4%D7%A0%D7%90%D7%99_%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%D7%99-%D7%9B%D7%95%D7%A9%D7%A8_%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%D7%99-%D7%9B%D7%95%D7%A9%D7%A8-%D7%91%D7%99%D7%AA%D7%99%D7%99%D7%9D?filters=%5B%5B%22Isp-tag-%D7%A1%D7%95%D7%92+%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%22%2C%22attr-Device+Type%3A%D7%A1%D7%A4%D7%AA+%D7%9B%D7%95%D7%A9%D7%A8%22%5D%5D&min_price=10&max_price=500&sortBy=creation_date",
+      "disabled": false
     },
     {
       "topic": "ספסל כושר",
-      "url": "https://market.yad2.co.il/search?q=%D7%A1%D7%A4%D7%A1%D7%9C+%D7%9B%D7%95%D7%A9%D7%A8&min_price=150&max_price=400&sortBy=creation_date"
+      "url": "https://market.yad2.co.il/search?q=%D7%A1%D7%A4%D7%A1%D7%9C+%D7%9B%D7%95%D7%A9%D7%A8&min_price=150&max_price=400&sortBy=creation_date",
+      "disabled": false
     },
     {
       "topic": "ספת כושר",
-      "url": "https://market.yad2.co.il/search?q=%D7%A1%D7%A4%D7%AA+%D7%9B%D7%95%D7%A9%D7%A8&min_price=10&max_price=400&sortBy=creation_date"
+      "url": "https://market.yad2.co.il/search?q=%D7%A1%D7%A4%D7%AA+%D7%9B%D7%95%D7%A9%D7%A8&min_price=10&max_price=400&sortBy=creation_date",
+      "disabled": false
     }
   ]
 }
