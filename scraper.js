@@ -16,123 +16,115 @@ const getYad2Response = async (url) => {
     }
 }
 
+const types = {
+    CARS: 'cars',
+    NADLAN: 'nadlan',
+    UNKNOWN: 'x'
+};
+
+const stages = {
+    [types.CARS]: ["div[class^=results-feed_feedListBox]", "div[class^=feed-item-base_imageBox]", "div[class^=feed-item-base_feedItemBox]"],
+    [types.NADLAN]: ["div[class^=map-feed_mapFeedBox]", "div[class^=item-image_itemImageBox]", "div[class^=item-layout_feedItemBox]"],
+    [types.UNKNOWN]: []
+};
+
 const scrapeItemsAndExtractImgUrls = async (url) => {
     const yad2Html = await getYad2Response(url);
     if (!yad2Html) {
         throw new Error("Could not get Yad2 response");
     }
     const $ = cheerio.load(yad2Html);
-    const title = $("title");
+    const title = $("title")
     const titleText = title.first().text();
     if (titleText === "ShieldSquare Captcha") {
         throw new Error("Bot detection");
     }
 
-    // Select the items using the updated selector
-    const $feedItems = $(
-        "li[data-testid=\"item-basic\"]"
-    );
-    console.log("Number of feed items found:", $feedItems.length);
-    console.log(`$feedItems = "${$feedItems}"`);
+    let type = types.UNKNOWN;
+    if ($("div[class^=results-feed_feedListBox]").length != 0) {
+        type = types.CARS;
+    } else if ($("div[class^=map-feed_mapFeedBox]").length != 0) {
+        type = types.NADLAN;
+    } else {
+        throw new Error("Unknown type");
+    }
 
-    if (!$feedItems) {
+    const $feedItems = $(stages[type][0]);
+    if ($feedItems.length == 0) {
         throw new Error("Could not find feed items");
     }
+    const $imageList = $feedItems.find(stages[type][1]);
+    const $linkList = $feedItems.find(stages[type][2]);
 
-    const imageUrls = [];
-    $feedItems.each((_, elm) => {
-        const imgSrc = "https://www.yad2.co.il" + $(elm)
-            .find(
-                "div > div > a"
-            )
-            .attr("href");
-        if (imgSrc) {
-            imageUrls.push(imgSrc);
-            console.log(imgSrc);
+    if ($imageList == 0 || $imageList.length != $linkList.length) {
+        throw new Error(`Could not read lists properly`);
+    }
+
+    const data = []
+    $imageList.each((i, _) => {
+        const imgSrc = $($imageList[i]).find("img").attr('src');
+        const lnkSrc = $($linkList[i]).find("a").attr('href');
+
+        if (imgSrc && lnkSrc) {
+            data.push({'img':imgSrc, 'lnk':  new URL(lnkSrc, url).href})
         }
-    });
-    return imageUrls;
-};
+    })
+    return data;
+}
 
-
-const checkIfHasNewItem = async (imgUrls, topic) => {
+const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
     let savedUrls = [];
-    let shouldUpdateFile = false;
-
-    // Step 1: Read or create the JSON file
     try {
-        savedUrls = require(filePath); // Load saved URLs
+        savedUrls = require(filePath);
     } catch (e) {
         if (e.code === "MODULE_NOT_FOUND") {
-            // Create 'data' directory and empty JSON file if it doesn't exist
-            if (!fs.existsSync('data')) {
-                fs.mkdirSync('data');
-            }
+            fs.mkdirSync('data');
             fs.writeFileSync(filePath, '[]');
         } else {
-            console.error(e);
-            throw new Error(`Could not read or create file at ${filePath}`);
+            console.log(e);
+            throw new Error(`Could not read / create ${filePath}`);
         }
     }
-
-    // Step 2: Filter out URLs no longer in imgUrls
-    const originalSavedUrls = [...savedUrls];
-    savedUrls = savedUrls.filter(savedUrl => imgUrls.includes(savedUrl));
-    if (savedUrls.length !== originalSavedUrls.length) {
-        shouldUpdateFile = true;
-    }
-
-    // Step 3: Add new URLs to savedUrls
+    let shouldUpdateFile = false;
+    let imgUrls = data.map(a => a['img']);
+    savedUrls = savedUrls.filter(savedUrl => {
+        return imgUrls.includes(savedUrl);
+    });
     const newItems = [];
-    imgUrls.forEach(url => {
-        if (!savedUrls.includes(url)) {
-            savedUrls.push(url);
-            newItems.push(url);
-            shouldUpdateFile = true; // Mark file for update
+    data.forEach(url => {
+        if (!savedUrls.includes(url['img'])) {
+            savedUrls.push(url['img']);
+            newItems.push(url['lnk']);
+            shouldUpdateFile = true;
         }
     });
-
-    // Step 4: Write updated URLs to the file if needed
     if (shouldUpdateFile) {
         const updatedUrls = JSON.stringify(savedUrls, null, 2);
         fs.writeFileSync(filePath, updatedUrls);
-        await createPushFlagForWorkflow(); // Trigger workflow if file was updated
+        await createPushFlagForWorkflow();
     }
-
-    // Return the list of new items
     return newItems;
-};
+}
 
 const createPushFlagForWorkflow = () => {
     fs.writeFileSync("push_me", "")
 }
 
 const scrape = async (topic, url) => {
-    const apiToken = process.env.API_TOKEN;
-    const chatId = process.env.CHAT_ID;
+    const apiToken = process.env.API_TOKEN || config.telegramApiToken;
+    const chatId = process.env.CHAT_ID || config.chatId;
     const telenode = new Telenode({apiToken})
     try {
-        //await telenode.sendTextMessage(`Starting scanning ${topic} on link:\n${url}`, chatId)
-        const scrapeImgResults = await scrapeItemsAndExtractImgUrls(url);
-            console.log("here7");
-
-        const newItems = await checkIfHasNewItem(scrapeImgResults, topic);
-                    console.log("here8");
-
+        // await telenode.sendTextMessage(`Starting scanning ${topic} on link:\n${url}`, chatId)
+        const scrapeDataResults = await scrapeItemsAndExtractImgUrls(url);
+        const newItems = await checkIfHasNewItem(scrapeDataResults, topic);
         if (newItems.length > 0) {
-                        console.log("here9");
-            const newItemsJoined = newItems.join("\n----------\n");
-            //const newItemsJoined = "https://img.yad2.co.il/Pic/202501/16/2_6/o/y2_1pa_010126_20250116010152.jpeg?w=3840&h=3840&c=9";
-            const msg = `${newItems.length} new items: ${topic} \n${newItemsJoined}`
-                        console.log("here10");
-            console.log(msg);
-            console.log(chatId);
-            await telenode.sendTextMessage(msg, chatId);
-                        console.log("here11");
-
+            await telenode.sendTextMessage(`${newItems.length} new items`, chatId)
+            .then(Promise.all(
+                newItems.map(msg => telenode.sendTextMessage(msg, chatId))));
         } else {
-            //await telenode.sendTextMessage("No new items were added", chatId);
+            // await telenode.sendTextMessage("No new items were added", chatId);
         }
     } catch (e) {
         let errMsg = e?.message || "";
