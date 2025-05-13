@@ -19,7 +19,6 @@ const getYad2Response = async (url) => {
 
 const scrapeItemsAndExtractImgUrls = async (url) => {
     const yad2Html = await getYad2Response(url);
-    console.log(`yad2Html = "${yad2Html}"`);
     if (!yad2Html) {
         throw new Error("Could not get Yad2 response");
     }
@@ -27,16 +26,19 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     const title = $("title");
     console.log(`title = "${title}"`);
     const titleText = title.first().text();
+    console.log(`titleText = "${titleText}"`);
     if (titleText === "ShieldSquare Captcha") {
         throw new Error("Bot detection");
     }
     const $feedItems = $(".feeditem").find(".pic");
+    console.log(`$feedItems = "${$feedItems}"`);
     if (!$feedItems) {
         throw new Error("Could not find feed items");
     }
     const imageUrls = []
     $feedItems.each((_, elm) => {
         const imgSrc = $(elm).find("img").attr('src');
+        console.log(`imgSrc = "${imgSrc}"`);
         if (imgSrc) {
             imageUrls.push(imgSrc)
         }
