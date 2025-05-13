@@ -10,6 +10,7 @@ const getYad2Response = async (url) => {
     };
     try {
         const res = await fetch(url, requestOptions)
+        console.log(`res = "${res}"`);
         return await res.text()
     } catch (err) {
         console.log(err)
@@ -18,11 +19,13 @@ const getYad2Response = async (url) => {
 
 const scrapeItemsAndExtractImgUrls = async (url) => {
     const yad2Html = await getYad2Response(url);
+    console.log(`yad2Html = "${yad2Html}"`);
     if (!yad2Html) {
         throw new Error("Could not get Yad2 response");
     }
     const $ = cheerio.load(yad2Html);
     const title = $("title");
+    console.log(`title = "${title}"`);
     const titleText = title.first().text();
     if (titleText === "ShieldSquare Captcha") {
         throw new Error("Bot detection");
@@ -38,6 +41,7 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
             imageUrls.push(imgSrc)
         }
     })
+    console.log(`imageUrls = "${imageUrls}"`);
     return imageUrls;
 }
 
