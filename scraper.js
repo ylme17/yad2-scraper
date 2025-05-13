@@ -10,7 +10,6 @@ const getYad2Response = async (url) => {
     };
     try {
         const res = await fetch(url, requestOptions)
-        console.log(`res = "${res}"`);
         return await res.text()
     } catch (err) {
         console.log(err)
@@ -24,84 +23,114 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     }
     const $ = cheerio.load(yad2Html);
     const title = $("title");
-    console.log(`title = "${title}"`);
     const titleText = title.first().text();
-    console.log(`titleText = "${titleText}"`);
     if (titleText === "ShieldSquare Captcha") {
         throw new Error("Bot detection");
     }
-    const $feedItems = $(".feeditem");//.find(".pic");
+
+    // Select the items using the updated selector
+    const $feedItems = $(
+        "li[data-testid=\"item-basic\"]"
+    );
+    console.log("Number of feed items found:", $feedItems.length);
     console.log(`$feedItems = "${$feedItems}"`);
+
     if (!$feedItems) {
         throw new Error("Could not find feed items");
     }
-    const imageUrls = []
+
+    const imageUrls = [];
     $feedItems.each((_, elm) => {
-        const imgSrc = $(elm).find("img").attr('src');
-        console.log(`imgSrc = "${imgSrc}"`);
+        const imgSrc = "https://www.yad2.co.il" + $(elm)
+            .find(
+                "div > div > a"
+            )
+            .attr("href");
         if (imgSrc) {
-            imageUrls.push(imgSrc)
+            imageUrls.push(imgSrc);
+            console.log(imgSrc);
         }
-    })
-    console.log(`imageUrls = "${imageUrls}"`);
+    });
     return imageUrls;
-}
+};
+
 
 const checkIfHasNewItem = async (imgUrls, topic) => {
     const filePath = `./data/${topic}.json`;
     let savedUrls = [];
+    let shouldUpdateFile = false;
+
+    // Step 1: Read or create the JSON file
     try {
-        savedUrls = require(filePath);
+        savedUrls = require(filePath); // Load saved URLs
     } catch (e) {
         if (e.code === "MODULE_NOT_FOUND") {
+            // Create 'data' directory and empty JSON file if it doesn't exist
             if (!fs.existsSync('data')) {
                 fs.mkdirSync('data');
             }
             fs.writeFileSync(filePath, '[]');
         } else {
-            console.log(e);
-            throw new Error(`Could not read / create ${filePath}`);
+            console.error(e);
+            throw new Error(`Could not read or create file at ${filePath}`);
         }
     }
-    let shouldUpdateFile = false;
-    savedUrls = savedUrls.filter(savedUrl => {
+
+    // Step 2: Filter out URLs no longer in imgUrls
+    const originalSavedUrls = [...savedUrls];
+    savedUrls = savedUrls.filter(savedUrl => imgUrls.includes(savedUrl));
+    if (savedUrls.length !== originalSavedUrls.length) {
         shouldUpdateFile = true;
-        return imgUrls.includes(savedUrl);
-    });
+    }
+
+    // Step 3: Add new URLs to savedUrls
     const newItems = [];
     imgUrls.forEach(url => {
         if (!savedUrls.includes(url)) {
             savedUrls.push(url);
             newItems.push(url);
-            shouldUpdateFile = true;
+            shouldUpdateFile = true; // Mark file for update
         }
     });
+
+    // Step 4: Write updated URLs to the file if needed
     if (shouldUpdateFile) {
         const updatedUrls = JSON.stringify(savedUrls, null, 2);
         fs.writeFileSync(filePath, updatedUrls);
-        await createPushFlagForWorkflow();
+        await createPushFlagForWorkflow(); // Trigger workflow if file was updated
     }
+
+    // Return the list of new items
     return newItems;
-}
+};
 
 const createPushFlagForWorkflow = () => {
     fs.writeFileSync("push_me", "")
 }
 
 const scrape = async (topic, url) => {
-    const apiToken = process.env.API_TOKEN || config.telegramApiToken;
-    const chatId = process.env.CHAT_ID || config.chatId;
+    const apiToken = process.env.API_TOKEN;
+    const chatId = process.env.CHAT_ID;
     const telenode = new Telenode({apiToken})
     try {
         //await telenode.sendTextMessage(`Starting scanning ${topic} on link:\n${url}`, chatId)
         const scrapeImgResults = await scrapeItemsAndExtractImgUrls(url);
-        console.log(`scrapeImgResults = "${scrapeImgResults}"`);
+            console.log("here7");
+
         const newItems = await checkIfHasNewItem(scrapeImgResults, topic);
-        console.log(`newItems = "${newItems}"`);
+                    console.log("here8");
+
         if (newItems.length > 0) {
+                        console.log("here9");
             const newItemsJoined = newItems.join("\n----------\n");
-            const msg = `${newItems.length} new items:\n${newItemsJoined}`
+            //const newItemsJoined = "https://img.yad2.co.il/Pic/202501/16/2_6/o/y2_1pa_010126_20250116010152.jpeg?w=3840&h=3840&c=9";
+            const msg = `${newItems.length} new items: ${topic} \n${newItemsJoined}`
+                        console.log("here10");
+            console.log(msg);
+            console.log(chatId);
             await telenode.sendTextMessage(msg, chatId);
+                        console.log("here11");
+
         } else {
             //await telenode.sendTextMessage("No new items were added", chatId);
         }
