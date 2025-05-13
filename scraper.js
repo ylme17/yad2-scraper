@@ -30,7 +30,7 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     if (titleText === "ShieldSquare Captcha") {
         throw new Error("Bot detection");
     }
-    const $feedItems = $(".feeditem").find(".pic");
+    const $feedItems = $(".feeditem");//.find(".pic");
     console.log(`$feedItems = "${$feedItems}"`);
     if (!$feedItems) {
         throw new Error("Could not find feed items");
