@@ -59,8 +59,7 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     }
 
     if(type == types.ITEMS) {
-        //const rootElement = document.documentElement;
-        const elements = $('.fs_search_results_wrapper a.product-block');
+        const elements = $feedItems.find('a.product-block');
         console.log(`elements = "${elements.length}"`);
         console.log(`elements = "${elements}"`);
     } else {    
