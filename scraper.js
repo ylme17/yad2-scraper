@@ -59,8 +59,8 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     }
 
     if(type == types.ITEMS) {
-        const rootElement = document.documentElement;
-        const elements = rootElement.querySelectorAll('.product-block');
+        //const rootElement = document.documentElement;
+        const elements = $('fs_search_results_wrapper .product-block');
         console.log(`elements = "${elements.length}"`);
         console.log(`elements = "${elements}"`);
     } else {    
