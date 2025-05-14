@@ -26,7 +26,7 @@ const types = {
 const stages = {
     [types.CARS]: ["div[class^=results-feed_feedListBox]", "div[class^=feed-item-base_imageBox]", "div[class^=feed-item-base_feedItemBox]"],
     [types.NADLAN]: ["div[class^=map-feed_mapFeedBox]", "div[class^=item-image_itemImageBox]", "div[class^=item-layout_feedItemBox]"],
-    [types.ITEMS]: ["div[class^=fs_search_results_wrapper]", "div[class^=product-image-container]", "div[class^=card--product]"],
+    [types.ITEMS]: ["div[class^=fs_search_results_container]", "div[class^=product-image-container]", "div[class^=card--product]"],
     [types.UNKNOWN]: []
 };
 
@@ -47,7 +47,7 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
         type = types.CARS;
     } else if ($("div[class^=map-feed_mapFeedBox]").length != 0) {
         type = types.NADLAN;
-    } else if ($("div[class^=fs_search_results_wrapper]").length != 0) {
+    } else if ($("div[class^=fs_search_results_container]").length != 0) {
         type = types.ITEMS;
     } else {
         throw new Error("Unknown type");
