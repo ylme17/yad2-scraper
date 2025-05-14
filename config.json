@@ -5,7 +5,7 @@
     {
       "topic": "Lexus IS",
       "url": "https://www.yad2.co.il/vehicles/cars?manufacturer=26&model=10321&year=2014-2022&price=-1-120000&priceOnly=1&imgOnly=1",
-      "disabled": false
+      "disabled": true
     },
     {
       "topic": "Toyota & Mazda",
