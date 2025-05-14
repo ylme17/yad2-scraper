@@ -58,11 +58,14 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
         throw new Error("Could not find feed items");
     }
 
-    if(type == types.ITEMS)
-        console.log(`items`);
-    
-    const $imageList = $feedItems.find(stages[type][1]);
-    const $linkList = $feedItems.find(stages[type][2]);
+    if(type == types.ITEMS) {
+        const elements = document.querySelectorAll('.product-block');
+        console.log(`elements = "${elements.length}"`);
+        console.log(`elements = "${elements}"`);
+    } else {    
+        const $imageList = $feedItems.find(stages[type][1]);
+        const $linkList = $feedItems.find(stages[type][2]);
+    }
 
     console.log(`$imageList = "${$imageList.length}"`);
     console.log(`$linkList = "${$linkList.length}"`);
