@@ -35,7 +35,6 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     if (!yad2Html) {
         throw new Error("Could not get Yad2 response");
     }
-    console.log(`yad2Html = "${yad2Html}"`);
     const $ = cheerio.load(yad2Html);
     const title = $("title")
     const titleText = title.first().text();
@@ -58,9 +57,16 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     if ($feedItems.length == 0) {
         throw new Error("Could not find feed items");
     }
+    console.log(`$feedItems = "${$feedItems.length}"`);
     console.log(`$feedItems = "${$feedItems}"`);
+    
     const $imageList = $feedItems.find(stages[type][1]);
     const $linkList = $feedItems.find(stages[type][2]);
+
+    console.log(`$imageList = "${$imageList.length}"`);
+    console.log(`$imageList = "${$imageList}"`);
+    console.log(`$linkList = "${$linkList.length}"`);
+    console.log(`$linkList = "${$linkList}"`);
 
     if ($imageList == 0 || $imageList.length != $linkList.length) {
         throw new Error(`Could not read lists properly`);
