@@ -58,6 +58,8 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
         throw new Error("Could not find feed items");
     }
 
+    console.log(`$feedItems = "${$feedItems}"`);
+
     if(type == types.ITEMS) {
         const elements = $feedItems.find('a.product-block');
         console.log(`elements = "${elements.length}"`);
