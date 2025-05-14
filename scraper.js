@@ -52,21 +52,19 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     } else {
         throw new Error("Unknown type");
     }
+    console.log(`fs_search_results_wrapper = "$("div[class^=fs_search_results_wrapper]").length"`);
 
     const $feedItems = $(stages[type][0]);
     if ($feedItems.length == 0) {
         throw new Error("Could not find feed items");
     }
     console.log(`$feedItems = "${$feedItems.length}"`);
-    console.log(`$feedItems = "${$feedItems}"`);
     
     const $imageList = $feedItems.find(stages[type][1]);
     const $linkList = $feedItems.find(stages[type][2]);
 
     console.log(`$imageList = "${$imageList.length}"`);
-    console.log(`$imageList = "${$imageList}"`);
     console.log(`$linkList = "${$linkList.length}"`);
-    console.log(`$linkList = "${$linkList}"`);
 
     if ($imageList == 0 || $imageList.length != $linkList.length) {
         throw new Error(`Could not read lists properly`);
