@@ -33,53 +33,88 @@ const getYad2Response = async (url) => {
     }
 }
 
+const types = {
+    CARS: 'cars',
+    NADLAN: 'nadlan',
+    ITEMS: 'items',
+    UNKNOWN: 'x'
+};
+
+const stages = {
+    [types.CARS]: ["div[class^=results-feed_feedListBox]", "div[class^=feed-item-base_imageBox]", "div[class^=feed-item-base_feedItemBox]"],
+    [types.NADLAN]: ["div[class^=map-feed_mapFeedBox]", "div[class^=item-image_itemImageBox]", "div[class^=item-layout_feedItemBox]"],
+    [types.ITEMS]: ["div[class^=fs_search_results_center]", "div[class^=product-image-container]", "div[class^=card--product]"],
+    [types.UNKNOWN]: []
+};
+
 const scrapeItemsAndExtractImgUrls = async (url) => {
     const yad2Html = await getYad2Response(url);
     if (!yad2Html) {
         throw new Error("Could not get Yad2 response");
     }
-    
-    // שמירת ה-HTML לבדיקה
-    fs.writeFileSync('last_response.html', yad2Html);
-    
     const $ = cheerio.load(yad2Html);
-    
-    // בדיקת חסימה
-    if (yad2Html.includes("מצאתי רכב קטן בייד2") || yad2Html.includes("ShieldSquare Captcha")) {
-        throw new Error("Access blocked by Yad2");
+    const title = $("title")
+    const titleText = title.first().text();
+    if (titleText === "ShieldSquare Captcha") {
+        throw new Error("Bot detection");
     }
 
-    // ניסיון למצוא מודעות עם סלקטורים שונים
-    const $feedItems = $('.main-container .feed-item');
-    
-    if (!$feedItems.length) {
-        console.log("Available elements:", $('*').map((_, el) => `${el.tagName}.${$(el).attr('class')}`).get().join('\n'));
+    let type = types.UNKNOWN;
+    if ($("div[class^=results-feed_feedListBox]").length != 0) {
+        type = types.CARS;
+    } else if ($("div[class^=map-feed_mapFeedBox]").length != 0) {
+        type = types.NADLAN;
+    } else if ($("div[class^=fs_search_results_center]").length != 0) {
+        type = types.ITEMS;
+    } else {
+        throw new Error("Unknown type");
+    }
+
+    const $feedItems = $(stages[type][0]);
+    if ($feedItems.length == 0) {
         throw new Error("Could not find feed items");
     }
 
-    const imageUrls = [];
-    $feedItems.each((_, elm) => {
-        const $imgs = $(elm).find('img');
-        $imgs.each((__, img) => {
-            const src = $(img).attr('src');
-            if (src && !src.includes('placeholder')) {
-                imageUrls.push(src);
-            }
-        });
-    });
+    console.log(`$feedItems = "${$feedItems}"`);
 
-    console.log(`Found ${imageUrls.length} images`);
-    return imageUrls;
+    if(type == types.ITEMS) {
+        const elements = $feedItems.find('a.product-block');
+        console.log(`elements = "${elements.length}"`);
+        console.log(`elements = "${elements}"`);
+    } else {    
+        const $imageList = $feedItems.find(stages[type][1]);
+        const $linkList = $feedItems.find(stages[type][2]);
+    }
+
+    console.log(`$imageList = "${$imageList.length}"`);
+    console.log(`$linkList = "${$linkList.length}"`);
+
+    if ($imageList == 0 || $imageList.length != $linkList.length) {
+        throw new Error(`Could not read lists properly`);
+    }
+
+    const data = []
+    $imageList.each((i, _) => {
+        const imgSrc = $($imageList[i]).find("img").attr('src');
+        const lnkSrc = $($linkList[i]).find("a").attr('href');
+
+        if (imgSrc && lnkSrc) {
+            data.push({'img':imgSrc, 'lnk':  new URL(lnkSrc, url).href})
+        }
+    })
+    return data;
 }
 
-const checkIfHasNewItem = async (imgUrls, topic) => {
+const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
     let savedUrls = [];
     try {
         savedUrls = require(filePath);
     } catch (e) {
         if (e.code === "MODULE_NOT_FOUND") {
-            fs.mkdirSync('data', { recursive: true });
+            if (!fs.existsSync('data')) {
+                fs.mkdirSync('data');
+            }
             fs.writeFileSync(filePath, '[]');
         } else {
             console.log(e);
@@ -87,15 +122,15 @@ const checkIfHasNewItem = async (imgUrls, topic) => {
         }
     }
     let shouldUpdateFile = false;
+    let imgUrls = data.map(a => a['img']);
     savedUrls = savedUrls.filter(savedUrl => {
-        shouldUpdateFile = true;
         return imgUrls.includes(savedUrl);
     });
     const newItems = [];
-    imgUrls.forEach(url => {
-        if (!savedUrls.includes(url)) {
-            savedUrls.push(url);
-            newItems.push(url);
+    data.forEach(url => {
+        if (!savedUrls.includes(url['img'])) {
+            savedUrls.push(url['img']);
+            newItems.push(url['lnk']);
             shouldUpdateFile = true;
         }
     });
@@ -111,58 +146,40 @@ const createPushFlagForWorkflow = () => {
     fs.writeFileSync("push_me", "")
 }
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-const scrape = async (topic, url, retries = 3) => {
+const scrape = async (topic, url) => {
     const apiToken = process.env.API_TOKEN || config.telegramApiToken;
     const chatId = process.env.CHAT_ID || config.chatId;
     const telenode = new Telenode({apiToken})
-    
     try {
-        //await telenode.sendTextMessage(`Starting scanning ${topic} on link:\n${url}`, chatId)
-        
-        let lastError;
-        for (let i = 0; i < retries; i++) {
-            try {
-                const scrapeImgResults = await scrapeItemsAndExtractImgUrls(url);
-                const newItems = await checkIfHasNewItem(scrapeImgResults, topic);
-
-                console.log(`scrapeImgResults = ${scrapeImgResults.length}`);
-                console.log(`scrapeImgResults = ${scrapeImgResults}`);
-                console.log(`newItems = ${newItems.length}`);
-                console.log(`newItems = ${newItems}`);
-                
-                if (newItems.length > 0) {
-                    const newItemsJoined = newItems.join("\n----------\n");
-                    const msg = `${newItems.length} new items:\n${newItemsJoined}`
-                    await telenode.sendTextMessage(msg, chatId);
-                } else {
-                    await telenode.sendTextMessage("No new items were added", chatId);
-                }
-                return; // אם הגענו לכאן, הכל עבד בהצלחה
-            } catch (e) {
-                lastError = e;
-                console.log(`Attempt ${i + 1} failed:`, e.message);
-                await delay(5000); // המתנה בין ניסיונות
-            }
+        // await telenode.sendTextMessage(`Starting scanning ${topic} on link:\n${url}`, chatId)
+        const scrapeDataResults = await scrapeItemsAndExtractImgUrls(url);
+        const newItems = await checkIfHasNewItem(scrapeDataResults, topic);
+        if (newItems.length > 0) {
+            await telenode.sendTextMessage(`${newItems.length} new items`, chatId)
+            .then(Promise.all(
+                newItems.map(msg => telenode.sendTextMessage(msg, chatId))));
+        } else {
+            // await telenode.sendTextMessage("No new items were added", chatId);
         }
-        
-        let errMsg = lastError?.message || "";
-        if (errMsg) {
-            errMsg = `Error: ${errMsg}`;
-        }
-        await telenode.sendTextMessage(`Scan workflow failed after ${retries} attempts... 😥\n${errMsg}`, chatId);
-        throw lastError;
     } catch (e) {
-        throw e;
+        let errMsg = e?.message || "";
+        if (errMsg) {
+            errMsg = `Error: ${errMsg}`
+        }
+        await telenode.sendTextMessage(`Scan workflow failed... 😥\n${errMsg}`, chatId)
+        throw new Error(e)
     }
 }
 
 const program = async () => {
-    for (const project of config.projects.filter(p => !p.disabled)) {
-        await scrape(project.topic, project.url);
-        await delay(30000); // 30 שניות בין בקשות
-    }
+    await Promise.all(config.projects.filter(project => {
+        if (project.disabled) {
+            console.log(`Topic "${project.topic}" is disabled. Skipping.`);
+        }
+        return !project.disabled;
+    }).map(async project => {
+        await scrape(project.topic, project.url)
+    }))
 };
 
 program();
