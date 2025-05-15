@@ -119,13 +119,18 @@ const scrape = async (topic, url, retries = 3) => {
     const telenode = new Telenode({apiToken})
     
     try {
-        await telenode.sendTextMessage(`Starting scanning ${topic} on link:\n${url}`, chatId)
+        //await telenode.sendTextMessage(`Starting scanning ${topic} on link:\n${url}`, chatId)
         
         let lastError;
         for (let i = 0; i < retries; i++) {
             try {
                 const scrapeImgResults = await scrapeItemsAndExtractImgUrls(url);
                 const newItems = await checkIfHasNewItem(scrapeImgResults, topic);
+
+                console.log(`scrapeImgResults = ${scrapeImgResults.length}`);
+                console.log(`scrapeImgResults = ${scrapeImgResults}`);
+                console.log(`newItems = ${newItems.length}`);
+                console.log(`newItems = ${newItems}`);
                 
                 if (newItems.length > 0) {
                     const newItemsJoined = newItems.join("\n----------\n");
