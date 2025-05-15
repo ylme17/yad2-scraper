@@ -22,7 +22,7 @@ const getYad2Response = async (url) => {
             'Accept-Language': 'he-IL,he;q=0.9'
         });
         console.log(`4`);
-        await page.goto(url, {waitUntil: 'networkidle0'});
+        await page.goto(url);
         console.log(`5`);
         // המתנה לטעינת התוכן
         await page.waitForSelector('.feed_item', {timeout: 10000}).catch(() => {});
