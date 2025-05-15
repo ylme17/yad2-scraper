@@ -11,21 +11,22 @@ const getYad2Response = async (url) => {
     });
     
     try {
+        console.log(`1`);
         const page = await browser.newPage();
-        
+        console.log(`2`);
         // הגדרת User Agent
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36');
-        
+        console.log(`3`);
         // הגדרת לוקיישן עברית
         await page.setExtraHTTPHeaders({
             'Accept-Language': 'he-IL,he;q=0.9'
         });
-        
+        console.log(`4`);
         await page.goto(url, {waitUntil: 'networkidle0'});
-        
+        console.log(`5`);
         // המתנה לטעינת התוכן
         await page.waitForSelector('.feed_item', {timeout: 10000}).catch(() => {});
-        
+        console.log(`6`);
         const content = await page.content();
         console.log(`content = "${content}"`);
         return content;
