@@ -27,6 +27,7 @@ const getYad2Response = async (url) => {
         await page.waitForSelector('.feed_item', {timeout: 10000}).catch(() => {});
         
         const content = await page.content();
+        console.log(`content = "${content}"`);
         return content;
     } finally {
         await browser.close();
