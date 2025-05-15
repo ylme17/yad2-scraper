@@ -94,6 +94,9 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
         const imgSrc = $($imageList[i]).find("img").attr('src');
         const lnkSrc = $($linkList[i]).find("a").attr('href');
 
+        console.log(`imgSrc = "${imgSrc}"`);
+        console.log(`lnkSrc = "${lnkSrc}"`);
+
         if (imgSrc && lnkSrc) {
             data.push({'img':imgSrc, 'lnk':  new URL(lnkSrc, url).href})
         }
