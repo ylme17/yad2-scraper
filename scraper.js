@@ -11,24 +11,16 @@ const getYad2Response = async (url) => {
     });
     
     try {
-        console.log(`1`);
         const page = await browser.newPage();
-        console.log(`2`);
-        // הגדרת User Agent
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36');
-        console.log(`3`);
-        // הגדרת לוקיישן עברית
         await page.setExtraHTTPHeaders({
             'Accept-Language': 'he-IL,he;q=0.9'
         });
-        console.log(`4`);
+        
         await page.goto(url);
-        console.log(`5`);
-        // המתנה לטעינת התוכן
         await page.waitForSelector('.feed_item', {timeout: 10000}).catch(() => {});
-        console.log(`6`);
         const content = await page.content();
-        console.log(`content = "${content}"`);
+        
         return content;
     } finally {
         await browser.close();
@@ -45,7 +37,7 @@ const types = {
 const stages = {
     [types.CARS]: ["div[class^=results-feed_feedListBox]", "div[class^=feed-item-base_imageBox]", "div[class^=feed-item-base_feedItemBox]"],
     [types.NADLAN]: ["div[class^=map-feed_mapFeedBox]", "div[class^=item-image_itemImageBox]", "div[class^=item-layout_feedItemBox]"],
-    [types.ITEMS]: ["div[class^=fs_search_results_center]", "div[class^=product-image-container]", "div[class^=card--product]"],
+    [types.ITEMS]: ["div[class^=fs_search_results_wrapper]", "div[class^=product-image-container]", "a[class^=product-block]"],
     [types.UNKNOWN]: []
 };
 
@@ -66,7 +58,7 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
         type = types.CARS;
     } else if ($("div[class^=map-feed_mapFeedBox]").length != 0) {
         type = types.NADLAN;
-    } else if ($("div[class^=fs_search_results_center]").length != 0) {
+    } else if ($("div[class^=fs_search_results_wrapper]").length != 0) {
         type = types.ITEMS;
     } else {
         throw new Error("Unknown type");
@@ -79,17 +71,19 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
 
     console.log(`$feedItems = "${$feedItems}"`);
 
-    if(type == types.ITEMS) {
+    /*if(type == types.ITEMS) {
         const elements = $feedItems.find('a.product-block');
         console.log(`elements = "${elements.length}"`);
         console.log(`elements = "${elements}"`);
-    } else {    
+    } else {*/
         const $imageList = $feedItems.find(stages[type][1]);
         const $linkList = $feedItems.find(stages[type][2]);
-    }
+    //}
 
     console.log(`$imageList = "${$imageList.length}"`);
+    console.log(`$imageList = "${$imageList}"`);
     console.log(`$linkList = "${$linkList.length}"`);
+    console.log(`$linkList = "${$linkList}"`);
 
     if ($imageList == 0 || $imageList.length != $linkList.length) {
         throw new Error(`Could not read lists properly`);
