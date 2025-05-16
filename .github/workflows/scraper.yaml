@@ -54,6 +54,6 @@ jobs:
         run: |
           echo "Pushing to GitHub..."
           git add .
-          DATE=$(date -Iseconds)
+          DATE=$(date +"%F, %H:%M:%S")
           git commit -m "updated data - $DATE"
           git push
