@@ -23,7 +23,7 @@
     {
       "topic": "ספסל כושר",
       "url": "https://market.yad2.co.il/search?q=%D7%A1%D7%A4%D7%A1%D7%9C+%D7%9B%D7%95%D7%A9%D7%A8&min_price=10&max_price=300",
-      "disabled": true
+      "disabled": false
     },
     {
       "topic": "ספת כושר",
