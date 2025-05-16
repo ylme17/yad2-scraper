@@ -19,7 +19,7 @@ To start using the scraper, simply:
 
 1. Clone / fork the repository.
 2. Set up a Telegram bot. (See [How to create a Telegram Bot](https://www.youtube.com/watch?v=l5YDtSLGhqk) for instructions)
-3. Add the Telegram API token and chat ID as GitHub secrets. You can do this in your repository's settings under "Secrets" -> "Actions".  Name the secrets `TELEGRAM_API_TOKEN` and `TELEGRAM_CHAT_ID`.
+3. Add the Telegram API token and chat ID as GitHub secrets. You can do this in your repository's settings under "Secrets and variables" -> "Actions".  Name the secrets `TELEGRAM_API_TOKEN` and `TELEGRAM_CHAT_ID`.
 4. Add a `topic` in the `config.json` - a name for the scraping topic.
 5. Add a `url` in the `config.json` - the Yad2 URL to scrape. **The scraper does not support pagination, so be specific and use Yad2 filters for better results.**
 6. Go to the "Actions" tab in your GitHub repository and enable workflows for the project.
