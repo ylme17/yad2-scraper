@@ -87,8 +87,14 @@ const checkIfHasNewItem = async (data, topic) => {
     try {
         if (fs.existsSync(filePath)) {
             const fileContent = fs.readFileSync(filePath, 'utf8');
-            JSON.parse(fileContent).forEach(url => savedImgUrls.add(url));
-        } else {
+            try {
+                JSON.parse(fileContent).forEach(item => savedImgUrls.add(item.img)); //changed url to item.img
+            } catch (parseError) {
+                console.error(`Error parsing JSON from ${filePath}:`, parseError);
+                // Consider if you want to continue with an empty savedImgUrls or throw an error
+                savedImgUrls = new Set(); // Reset to empty set to avoid using potentially corrupted data
+                // throw new Error(`Could not parse ${filePath}`); // Option: Throw error to stop processing
+            }        } else {
             if (!fs.existsSync('data')) fs.mkdirSync('data');
             fs.writeFileSync(filePath, '[]');
         }
