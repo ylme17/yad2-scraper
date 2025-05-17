@@ -42,18 +42,18 @@ jobs:
             echo "Scraper failed!"
             exit 1
           fi
-          # Check for new data (example: check if any JSON file was modified)
+          # Check for new data
           has_new_data=false
           if git diff --name-only | grep -q '\.json$'; then
             has_new_data=true
           fi
-          echo "has_new_data=$has_new_data" >> $GITHUB_OUTPUT
-        
+          echo "::set-output name=has_new_data::$has_new_data" # Use the correct GitHub Actions syntax
+          echo "SCRAPER_OUTPUT=$has_new_data" >> $GITHUB_OUTPUT # For debugging
       - name: Push new json data if needed
         if: steps.scraper_run.outputs.has_new_data == 'true'
         run: |
           echo "Pushing to GitHub..."
           git add .
-          DATE=$(date +"%F, %H:%M:%S")
+          DATE=$(date -Iseconds)
           git commit -m "updated data - $DATE"
           git push
