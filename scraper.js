@@ -54,14 +54,14 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     const $feedItems = $(stages[type][0]);
     if ($feedItems.length === 0) throw new Error("Could not find feed items");
 
-    const data = [];
+    const data = []; // תיקון: הגדרת מערך data כאן
 
     if (type === types.ITEMS) {
         $feedItems.find(stages[type][1]).each((i, el) => {
             const $productBlock = $(el);
             const lnkSrc = $productBlock.attr('href');
             const imgSrc = $productBlock.find('img').attr('src');
-            if (imgSrc && lnkSrc) data.push({'img': imgSrc, 'lnk': new URL(lnkSrc, url).href});
+            if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
         });
     } else if (type === types.CARS || type === types.NADLAN) {
         const $imageList = $feedItems.find(stages[type][1]);
@@ -71,7 +71,7 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
             const imgSrc = $(imgEl).attr('src') || $(imgEl).find('img').attr('src');
             const linkEl = $linkList[i];
             const lnkSrc = $(linkEl).attr('href') || $(linkEl).find('a').attr('href');
-            if (imgSrc && lnkSrc) data.push({'img': imgSrc, 'lnk': new URL(lnkSrc, url).href});
+            if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
         });
     } else {
         throw new Error("Cannot scrape unknown type, selectors are not defined.");
@@ -83,18 +83,30 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
 const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
     let savedImgUrls = new Set();
+    let newItems = []; // Initialize newItems here
 
     try {
         if (fs.existsSync(filePath)) {
             const fileContent = fs.readFileSync(filePath, 'utf8');
             try {
-                JSON.parse(fileContent).forEach(item => savedImgUrls.add(item.img)); //changed url to item.img
+                const parsedData = JSON.parse(fileContent);
+                if (Array.isArray(parsedData)) { // Check if parsedData is an array
+                  parsedData.forEach(item => {
+                    if(item && item.img){
+                       savedImgUrls.add(item.img)
+                     }
+                    });
+                } else {
+                  console.warn(`Warning: ${filePath} does not contain an array. Overwriting.`);
+                  savedImgUrls = new Set();
+                }
             } catch (parseError) {
                 console.error(`Error parsing JSON from ${filePath}:`, parseError);
                 // Consider if you want to continue with an empty savedImgUrls or throw an error
                 savedImgUrls = new Set(); // Reset to empty set to avoid using potentially corrupted data
                 // throw new Error(`Could not parse ${filePath}`); // Option: Throw error to stop processing
-            }        } else {
+            }
+        } else {
             if (!fs.existsSync('data')) fs.mkdirSync('data');
             fs.writeFileSync(filePath, '[]');
         }
@@ -103,7 +115,7 @@ const checkIfHasNewItem = async (data, topic) => {
         throw new Error(`Could not read / create ${filePath}`);
     }
 
-    const newItems = [];
+    newItems = []; // Reset newItems array
     const currentImgUrls = data.map(item => item.img);
 
     // Find new items
@@ -116,8 +128,9 @@ const checkIfHasNewItem = async (data, topic) => {
     // Remove old links
     const updatedSavedUrls = Array.from(savedImgUrls).filter(savedUrl => currentImgUrlsSet.has(savedUrl));
 
+    // Add new items to the list of saved URLs
     newItems.forEach(link => {
-        const newItemImg = data.find(item => item.lnk === link)?.img;
+        const newItemImg = data.find(item => item.lnk === link)?.img; // Find the corresponding image URL
         if (newItemImg) {
             updatedSavedUrls.push(newItemImg);
         }
@@ -169,7 +182,7 @@ const program = async () => {
         console.error("Critical: Telegram API Token or Chat ID is not set. Exiting.");
         return;
     }
-    
+
     const activeProjects = config.projects.filter(project => !project.disabled);
     for (const project of activeProjects) {
         console.log(`Starting scan for topic: ${project.topic}`);
