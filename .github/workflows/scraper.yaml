@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "STARTING SCRAPER STEP"
           export TELEGRAM_API_TOKEN=${{ secrets.TELEGRAM_API_TOKEN }}
-          export TELEGRAM_CHAT_ID=${{ secrets.CHAT_ID }}
+          export TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
           echo "BEFORE yarn scrape: $(ls -la)" # Debug
