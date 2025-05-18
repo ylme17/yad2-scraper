@@ -33,11 +33,13 @@ jobs:
       - name: Run scraper
         id: scraper_run
         run: |
+          echo "STARTING SCRAPER STEP" # Debug
           export TELEGRAM_API_TOKEN=${{ secrets.TELEGRAM_API_TOKEN }}
           export TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
           yarn scrape
+          echo "AFTER YARN SCRAPE" # Debug
           if [ $? -ne 0 ]; then
             echo "Scraper failed!"
             exit 1
