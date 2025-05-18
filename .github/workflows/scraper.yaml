@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Ensure we fetch all history
 
       - name: Install chrome dependencies
         run: |
@@ -46,6 +48,7 @@ jobs:
           has_new_data=false
           changed_files=$(git diff --name-only)
           echo "DEBUG: Changed files: $changed_files"
+          echo "DEBUG: git diff status: $?" #check status
           if [[ "$changed_files" =~ .*\.json$ ]]; then
             has_new_data=true
           fi
