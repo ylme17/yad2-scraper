@@ -115,20 +115,17 @@ const checkIfHasNewItem = async (data, topic) => {
 
     newItems = [];
     const currentImgUrls = data.map(item => item.img);
-    console.log(`currentImgUrls = ${currentImgUrls}`);
-    console.log(`data = ${data}`);
+    const savedImgUrlsArray = Array.from(savedImgUrls); // Convert the Set to an Array
 
     // Find new items
     data.forEach(item => {
-        if (!savedImgUrls.has(item.img)) {
+        if (!savedImgUrlsArray.includes(item.img)) { // Use the Array for comparison
             newItems.push(item.lnk);
         }
     });
-    console.log(`newItems = ${newItems}`);
 
     // Write all current items (new and old) to the file, overwriting the old content
     const saveData = data.map(item => item.img);
-    console.log(`saveData = ${saveData}`);
     fs.writeFileSync(filePath, JSON.stringify(saveData, null, 2));
 
     return newItems;
