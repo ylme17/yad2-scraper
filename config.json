@@ -8,17 +8,17 @@
     {
       "topic": "Toyota & Mazda",
       "url": "https://www.yad2.co.il/vehicles/cars?manufacturer=19,27&model=10226,11150,10332,10342,10341,10238,10225&year=2014-2022&price=90000-120000&km=-1-50000&hand=2-2&priceOnly=1&imgOnly=1",
-      "disabled": true
+      "disabled": false
     },
     {
       "topic": "Real estate",
-      "url": "https://www.yad2.co.il/vehicles/cars?manufacturer=19,27&model=10226,11150,10332,10342,10341,10238,10225&year=2014-2022&price=90000-120000&km=-1-50000&hand=2-2&priceOnly=1&imgOnly=1",
-      "disabled": true
+      "url": "https://www.yad2.co.il/realestate/rent?maxPrice=8000&bBox=32.068406%2C34.878998%2C32.079039%2C34.898775&imageOnly=1&priceOnly=1&property=1",
+      "disabled": false
     },
     {
       "topic": "Fitness bench",
       "url": "https://market.yad2.co.il/collections/%D7%A1%D7%A4%D7%95%D7%A8%D7%98-%D7%95%D7%A4%D7%A0%D7%90%D7%99_%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%D7%99-%D7%9B%D7%95%D7%A9%D7%A8_%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%D7%99-%D7%9B%D7%95%D7%A9%D7%A8-%D7%91%D7%99%D7%AA%D7%99%D7%99%D7%9D?filters=%5B%5B%22Isp-tag-%D7%A1%D7%95%D7%92+%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%22%2C%22attr-Device+Type%3A%D7%A1%D7%A4%D7%AA+%D7%9B%D7%95%D7%A9%D7%A8%22%5D%5D&min_price=10&max_price=500&sortBy=creation_date",
-      "disabled": true
+      "disabled": false
     },
     {
       "topic": "ספסל כושר",
@@ -28,12 +28,12 @@
     {
       "topic": "ספת כושר",
       "url": "https://market.yad2.co.il/search?q=%D7%A1%D7%A4%D7%AA+%D7%9B%D7%95%D7%A9%D7%A8&min_price=10&max_price=400&sortBy=creation_date",
-      "disabled": true
+      "disabled": false
     },
     {
       "topic": "משקולות",
       "url": "https://market.yad2.co.il/collections/%D7%A1%D7%A4%D7%95%D7%A8%D7%98-%D7%95%D7%A4%D7%A0%D7%90%D7%99_%D7%9E%D7%9B%D7%A9%D7%99%D7%A8%D7%99-%D7%9B%D7%95%D7%A9%D7%A8_%D7%9E%D7%A9%D7%A7%D7%95%D7%9C%D7%95%D7%AA?sortBy=creation_date&min_price=1&max_price=300",
-      "disabled": true
+      "disabled": false
     }
   ]
 }
