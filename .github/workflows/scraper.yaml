@@ -33,28 +33,25 @@ jobs:
       - name: Run scraper
         id: scraper_run
         run: |
-          echo "STARTING SCRAPER STEP" # Debug
           export TELEGRAM_API_TOKEN=${{ secrets.TELEGRAM_API_TOKEN }}
           export TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
           yarn scrape
-          echo "AFTER YARN SCRAPE" # Debug
           if [ $? -ne 0 ]; then
             echo "Scraper failed!"
             exit 1
           fi
           # Check for new data (example: check if any JSON file was modified)
           has_new_data=false
-          if git diff --name-only | grep -q '\.json$'; then
+          changed_files=$(git diff --name-only)
+          echo "DEBUG: Changed files: $changed_files"
+          if [[ "$changed_files" =~ .*\.json$ ]]; then
             has_new_data=true
           fi
           echo "::set-output name=has_new_data::$has_new_data"
           echo "SCRAPER_OUTPUT=$has_new_data" >> $GITHUB_OUTPUT # Debug
-          echo "DEBUG: has_new_data is $has_new_data" # Debug
-          echo "DEBUG: git diff output:"
-          git diff --name-only #add this
-        
+
       - name: Push new json data if needed
         if: steps.scraper_run.outputs.has_new_data == 'true'
         run: |
