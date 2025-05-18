@@ -128,7 +128,7 @@ const checkIfHasNewItem = async (imgUrls, topic) => {
     if (shouldUpdateFile) {
         const updatedUrls = JSON.stringify(savedImgUrls, null, 2);
         fs.writeFileSync(filePath, updatedUrls);
-        await createPushFlagForWorkflow();
+        //await createPushFlagForWorkflow();
     }
 
     return newItems;
