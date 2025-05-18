@@ -61,7 +61,8 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
             const $productBlock = $(el);
             const lnkSrc = $productBlock.attr('href');
             const imgSrc = $productBlock.find('img').attr('src');
-            if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
+            //if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
+            if (imgSrc && lnkSrc) data.push(imgSrc);
             console.log(`data = ${data}`);
         });
     } else if (type === types.CARS || type === types.NADLAN) {
@@ -72,7 +73,8 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
             const imgSrc = $(imgEl).attr('src') || $(imgEl).find('img').attr('src');
             const linkEl = $linkList[i];
             const lnkSrc = $(linkEl).attr('href') || $(linkEl).find('a').attr('href');
-            if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
+            //if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
+            if (imgSrc && lnkSrc) data.push(imgSrc);
             console.log(`data = ${data}`);
         });
     } else {
