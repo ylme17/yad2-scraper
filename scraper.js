@@ -128,10 +128,13 @@ const checkIfHasNewItem = async (imgUrls, topic) => {
     if (shouldUpdateFile) {
         const updatedUrls = JSON.stringify(savedImgUrls, null, 2);
         fs.writeFileSync(filePath, updatedUrls);
-        //await createPushFlagForWorkflow();
+        await createPushFlagForWorkflow();
     }
-
     return newItems;
+}
+
+const createPushFlagForWorkflow = () => {
+    fs.writeFileSync("push_me", "")
 }
 
 // Main function to scrape and send notifications
