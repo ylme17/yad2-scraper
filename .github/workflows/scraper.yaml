@@ -44,12 +44,15 @@ jobs:
           fi
           # Check for new data (example: check if any JSON file was modified)
           has_new_data=false
-          if git diff --quiet --name-only | grep -q '\.json$'; then
+          if git diff --name-only | grep -q '\.json$'; then
             has_new_data=true
           fi
           echo "::set-output name=has_new_data::$has_new_data"
           echo "SCRAPER_OUTPUT=$has_new_data" >> $GITHUB_OUTPUT # Debug
-
+          echo "DEBUG: has_new_data is $has_new_data" # Debug
+          echo "DEBUG: git diff output:"
+          git diff --name-only #add this
+        
       - name: Push new json data if needed
         if: steps.scraper_run.outputs.has_new_data == 'true'
         run: |
