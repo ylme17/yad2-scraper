@@ -80,7 +80,7 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
 }
 
 // Function to check if there are new items
-const checkIfHasNewItem = async (data, topic) => {
+const checkIfHasNewItem = async (imgUrls, topic) => {
     const filePath = `./data/${topic}.json`;
     let savedImgUrls = [];
 
