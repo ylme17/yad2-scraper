@@ -18,9 +18,9 @@ const getYad2Response = async (url) => {
         await page.goto(url, { waitUntil: 'domcontentloaded' });
 
         try {
-            await page.waitForSelector('img', { timeout: 15000 });
+            await page.waitForSelector('.feed_item', { timeout: 15000 });
         } catch (e) {
-            console.warn(`Warning: "img" not found on ${url} within timeout. Error: ${e.message}`);
+            console.warn(`Warning: .feed_item not found on ${url} within timeout. Error: ${e.message}`);
         }
         const content = await page.content();
         return content;
@@ -84,6 +84,7 @@ const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
     let savedImgUrls = new Set();
     let newItems = []; // Initialize newItems here
+    let hasNew = false;
 
     try {
         if (fs.existsSync(filePath)) {
@@ -91,23 +92,20 @@ const checkIfHasNewItem = async (data, topic) => {
             try {
                 const parsedData = JSON.parse(fileContent);
                 if (Array.isArray(parsedData)) { // Check if parsedData is an array
-                  parsedData.forEach(item => {
-                    if(item && item.img){
-                       savedImgUrls.add(item.img)
-                     }
+                    parsedData.forEach(item => {
+                        if (item && item.img) {
+                            savedImgUrls.add(item.img);
+                        }
                     });
                 } else {
-                  console.warn(`Warning: ${filePath} does not contain an array. Overwriting.`);
-                  savedImgUrls = new Set();
+                    console.warn(`Warning: ${filePath} does not contain an array. Overwriting.`);
+                    savedImgUrls = new Set();
                 }
             } catch (parseError) {
                 console.error(`Error parsing JSON from ${filePath}:`, parseError);
-                // Consider if you want to continue with an empty savedImgUrls or throw an error
-                savedImgUrls = new Set(); // Reset to empty set to avoid using potentially corrupted data
-                // throw new Error(`Could not parse ${filePath}`); // Option: Throw error to stop processing
+                savedImgUrls = new Set();
             }
         } else {
-            console.log(`write to file`);
             if (!fs.existsSync('data')) fs.mkdirSync('data');
             fs.writeFileSync(filePath, '[]');
         }
@@ -123,43 +121,28 @@ const checkIfHasNewItem = async (data, topic) => {
     data.forEach(item => {
         if (!savedImgUrls.has(item.img)) {
             newItems.push(item.lnk);
-        }
-    });
-    const currentImgUrlsSet = new Set(currentImgUrls);
-    // Remove old links
-    const updatedSavedUrls = Array.from(savedImgUrls).filter(savedUrl => currentImgUrlsSet.has(savedUrl));
-
-    // Add new items to the list of saved URLs
-    newItems.forEach(link => {
-        const newItemImg = data.find(item => item.lnk === link)?.img; // Find the corresponding image URL
-        if (newItemImg) {
-            updatedSavedUrls.push(newItemImg);
+            hasNew = true;
         }
     });
 
-    const finalSavedUrlsSet = new Set(updatedSavedUrls);
-    const finalSavedUrlsArray = Array.from(finalSavedUrlsSet);
-    const originalSavedUrlsArray = Array.from(savedImgUrls);
+    // Write all current items (new and old) to the file, overwriting the old content
+    const saveData = data.map(item => item.img); // Extract only image URLs for saving
+    fs.writeFileSync(filePath, JSON.stringify(saveData, null, 2));
 
-    if (finalSavedUrlsArray.length !== originalSavedUrlsArray.length ||
-        !finalSavedUrlsArray.every(item => originalSavedUrlsArray.includes(item))) {
-        console.log(`write to file2`);
-        fs.writeFileSync(filePath, JSON.stringify(finalSavedUrlsArray, null, 2));
-    }
-    return newItems;
+    return { hasNew, newItems }; // Return both flags
 }
 
 // Main function to scrape and send notifications
 const scrape = async (topic, url, telenode, TELEGRAM_CHAT_ID) => {
     try {
         const scrapeDataResults = await scrapeItemsAndExtractImgUrls(url);
-        const newItems = await checkIfHasNewItem(scrapeDataResults, topic);
+        const { hasNew, newItems } = await checkIfHasNewItem(scrapeDataResults, topic); // Receive the hasNew flag
 
-        if (newItems.length > 0) {
+        if (hasNew) { // Use the hasNew flag
             const messageText = `${newItems.length} new items found for ${topic}:`;
             await telenode.sendTextMessage(messageText, TELEGRAM_CHAT_ID);
             for (const msg of newItems) {
-                //await telenode.sendTextMessage(msg, TELEGRAM_CHAT_ID);
+                await telenode.sendTextMessage(msg, TELEGRAM_CHAT_ID);
             }
         }
     } catch (e) {
@@ -198,3 +181,4 @@ const program = async () => {
 };
 
 program();
+
