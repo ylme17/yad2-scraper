@@ -6,13 +6,13 @@
       "disabled": false
     },
     {
-      "topic": "Toyota & Mazda",
-      "url": "https://www.yad2.co.il/vehicles/cars?manufacturer=19,27&model=10226,11150,10332,10342,10341,10238,10225&year=2014-2022&price=90000-120000&km=-1-50000&hand=2-2&priceOnly=1&imgOnly=1",
+      "topic": "Real estate",
+      "url": "https://www.yad2.co.il/realestate/rent?maxPrice=8000&bBox=32.068406%2C34.878998%2C32.079039%2C34.898775&imageOnly=1&priceOnly=1&property=1",
       "disabled": false
     },
     {
-      "topic": "Real estate",
-      "url": "https://www.yad2.co.il/realestate/rent?maxPrice=8000&bBox=32.068406%2C34.878998%2C32.079039%2C34.898775&imageOnly=1&priceOnly=1&property=1",
+      "topic": "Toyota & Mazda",
+      "url": "https://www.yad2.co.il/vehicles/cars?manufacturer=19,27&model=10226,11150,10332,10342,10341,10238,10225&year=2014-2022&price=90000-120000&km=-1-50000&hand=2-2&priceOnly=1&imgOnly=1",
       "disabled": false
     },
     {
