@@ -79,14 +79,12 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     } else {
         throw new Error("Cannot scrape unknown type, selectors are not defined.");
     }
-    console.log(`data = ${data}`);
     return data;
 }
 
 // Function to check if there are new items
 const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
-console.log(`data = ${data}`);
     let savedUrls = [];
     try {
         savedUrls = require(filePath);
@@ -112,8 +110,6 @@ console.log(`data = ${data}`);
             shouldUpdateFile = true;
         }
     });
-console.log(`savedUrls = ${savedUrls}`);
-console.log(`newItems = ${newItems}`);
     if (shouldUpdateFile) {
         const updatedUrls = JSON.stringify(savedUrls, null, 2);
         fs.writeFileSync(filePath, updatedUrls);
@@ -132,14 +128,13 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const scrape = async (topic, url, telenode, TELEGRAM_CHAT_ID) => {
     try {
         const scrapeImgResults = await scrapeItemsAndExtractImgUrls(url);
-        console.log(`scrapeImgResults = ${scrapeImgResults}`);
         const newItems = await checkIfHasNewItem(scrapeImgResults, topic);
 
         if (newItems.length > 0) {
             const messageText = `${newItems.length} new items found for ${topic}:`;
             await telenode.sendTextMessage(messageText, TELEGRAM_CHAT_ID);
             for (const msg of newItems) {
-                //await telenode.sendTextMessage(msg, TELEGRAM_CHAT_ID);
+                await telenode.sendTextMessage(msg, TELEGRAM_CHAT_ID);
             }
         }
     } catch (e) {
