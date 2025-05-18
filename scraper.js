@@ -4,6 +4,27 @@ const fs = require('fs');
 const config = require('./config.json');
 const puppeteer = require('puppeteer');
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Array of user agents
+const userAgents = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/120.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:120.0) Gecko/20100101 Firefox/120.0',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
+    'Mozilla/5.0 (iPad; CPU OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
+    'Mozilla/5.0 (Android 14; Mobile; rv:120.0) Gecko/120.0 Firefox/120.0',
+    'Mozilla/5.0 (Android 14; Tablet; rv:120.0) Gecko/120.0 Firefox/120.0'
+];
+
+// Function to get a random user agent
+const getRandomUserAgent = () => {
+    return userAgents[Math.floor(Math.random() * userAgents.length)];
+};
+
 // Function to get HTML from a web page using Puppeteer
 const getYad2Response = async (url) => {
     const browser = await puppeteer.launch({
@@ -13,9 +34,10 @@ const getYad2Response = async (url) => {
 
     try {
         const page = await browser.newPage();
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36');
+        await page.setUserAgent(getRandomUserAgent()); // Use a random user agent
         await page.setExtraHTTPHeaders({ 'Accept-Language': 'he-IL,he;q=0.9' });
         await page.goto(url, { waitUntil: 'domcontentloaded' });
+        await delay(1500 + Math.random() * 1000); // Add a random delay between 1.5 and 2.5 seconds
 
         try {
             await page.waitForSelector('img', { timeout: 15000 });
@@ -121,8 +143,6 @@ const checkIfHasNewItem = async (data, topic) => {
 const createPushFlagForWorkflow = () => {
     fs.writeFileSync("push_me", "")
 }
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Main function to scrape and send notifications
 const scrape = async (topic, url, telenode, TELEGRAM_CHAT_ID) => {
