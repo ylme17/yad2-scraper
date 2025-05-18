@@ -139,6 +139,8 @@ const createPushFlagForWorkflow = () => {
     fs.writeFileSync("push_me", "")
 }
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 // Main function to scrape and send notifications
 const scrape = async (topic, url, telenode, TELEGRAM_CHAT_ID) => {
     try {
@@ -181,7 +183,7 @@ const program = async () => {
         try {
             await scrape(project.topic, project.url, telenode, TELEGRAM_CHAT_ID);
             console.log(`Finished scan for topic: ${project.topic}`);
-            await delay(2000);
+            await delay(5000);
         } catch (error) {
             console.error(`Failed to scan topic: ${project.topic}. Error:`, error.message);
         }
