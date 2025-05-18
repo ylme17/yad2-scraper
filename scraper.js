@@ -85,12 +85,13 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
 // Function to check if there are new items
 const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
+console.log(`data = ${data}`);
     let savedUrls = [];
     try {
         savedUrls = require(filePath);
     } catch (e) {
         if (e.code === "MODULE_NOT_FOUND") {
-		  if (!fs.existsSync('data')) fs.mkdirSync('data');
+            if (!fs.existsSync('data')) fs.mkdirSync('data');
             fs.writeFileSync(filePath, '[]');
         } else {
             console.log(e);
@@ -110,6 +111,8 @@ const checkIfHasNewItem = async (data, topic) => {
             shouldUpdateFile = true;
         }
     });
+console.log(`savedUrls = ${savedUrls}`);
+console.log(`newItems = ${newItems}`);
     if (shouldUpdateFile) {
         const updatedUrls = JSON.stringify(savedUrls, null, 2);
         fs.writeFileSync(filePath, updatedUrls);
