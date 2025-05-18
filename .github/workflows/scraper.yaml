@@ -44,23 +44,13 @@ jobs:
             echo "Scraper failed!"
             exit 1
           fi
-          git add data/*.json # Add the generated JSON files to git
-          # Check for new data (example: check if any JSON file was modified)
-          has_new_data=false
-          changed_files=$(git diff --name-only)
-          echo "DEBUG: Changed files: $changed_files"
-          echo "DEBUG: git diff status: $?"
-          if [[ "$changed_files" =~ .*\.json$ ]]; then
-            has_new_data=true
-          fi
-          echo "::set-output name=has_new_data::$has_new_data"
-          echo "SCRAPER_OUTPUT=$has_new_data" >> $GITHUB_OUTPUT # Debug
+          echo "::set-output name=has_new_data::true" # Always set to true, the logic is now in the js
+          echo "SCRAPER_OUTPUT=true" >> $GITHUB_OUTPUT # Debug
 
-      - name: Push new json data if needed
-        if: steps.scraper_run.outputs.has_new_data == 'true'
+      - name: Push new json data
         run: |
           echo "Pushing to GitHub..."
-          git add .
+          git add data/*.json 
           DATE=$(date -Iseconds)
           git commit -m "updated data - $DATE"
           git push
