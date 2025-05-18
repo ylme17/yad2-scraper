@@ -82,7 +82,7 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
 // Function to check if there are new items
 const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
-    let savedImgUrls = new Set();
+    let savedImgUrls = [];
 
     try {
         if (fs.existsSync(filePath)) {
@@ -97,11 +97,11 @@ const checkIfHasNewItem = async (data, topic) => {
                     });
                 } else {
                     console.warn(`Warning: ${filePath} does not contain an array. Overwriting.`);
-                    savedImgUrls = new Set();
+                    savedImgUrls = [];
                 }
             } catch (parseError) {
                 console.error(`Error parsing JSON from ${filePath}:`, parseError);
-                savedImgUrls = new Set();
+                savedImgUrls = [];
             }
         } else {
             if (!fs.existsSync('data')) fs.mkdirSync('data');
