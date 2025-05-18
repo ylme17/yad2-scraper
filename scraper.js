@@ -79,6 +79,7 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     } else {
         throw new Error("Cannot scrape unknown type, selectors are not defined.");
     }
+    console.log(`data = ${data}`);
     return data;
 }
 
