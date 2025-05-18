@@ -18,9 +18,9 @@ const getYad2Response = async (url) => {
         await page.goto(url, { waitUntil: 'domcontentloaded' });
 
         try {
-            await page.waitForSelector('.feed_item', { timeout: 15000 });
+            await page.waitForSelector('img', { timeout: 15000 });
         } catch (e) {
-            console.warn(`Warning: .feed_item not found on ${url} within timeout. Error: ${e.message}`);
+            console.warn(`Warning: "img" not found on ${url} within timeout. Error: ${e.message}`);
         }
         const content = await page.content();
         return content;
