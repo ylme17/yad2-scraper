@@ -83,7 +83,6 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
 const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
     let savedImgUrls = new Set();
-    let newItems = [];
 
     try {
         if (fs.existsSync(filePath)) {
@@ -113,20 +112,24 @@ const checkIfHasNewItem = async (data, topic) => {
         throw new Error(`Could not read / create ${filePath}`);
     }
 
-    newItems = [];
-    const currentImgUrls = data.map(item => item.img);
-    const savedImgUrlsArray = Array.from(savedImgUrls); // Convert the Set to an Array
-
-    // Find new items
-    data.forEach(item => {
-        if (!savedImgUrlsArray.includes(item.img)) { // Use the Array for comparison
-            newItems.push(item.lnk);
+    let shouldUpdateFile = false;
+    savedUrls = savedUrls.filter(savedUrl => {
+        shouldUpdateFile = true;
+        return imgUrls.includes(savedUrl);
+    });
+    const newItems = [];
+    imgUrls.forEach(url => {
+        if (!savedUrls.includes(url)) {
+            savedUrls.push(url);
+            newItems.push(url);
+            shouldUpdateFile = true;
         }
     });
-
-    // Write all current items (new and old) to the file, overwriting the old content
-    const saveData = data.map(item => item.img);
-    fs.writeFileSync(filePath, JSON.stringify(saveData, null, 2));
+    if (shouldUpdateFile) {
+        const updatedUrls = JSON.stringify(savedUrls, null, 2);
+        fs.writeFileSync(filePath, updatedUrls);
+        await createPushFlagForWorkflow();
+    }
 
     return newItems;
 }
@@ -141,7 +144,7 @@ const scrape = async (topic, url, telenode, TELEGRAM_CHAT_ID) => {
             const messageText = `${newItems.length} new items found for ${topic}:`;
             await telenode.sendTextMessage(messageText, TELEGRAM_CHAT_ID);
             for (const msg of newItems) {
-                await telenode.sendTextMessage(msg, TELEGRAM_CHAT_ID);
+                //await telenode.sendTextMessage(msg, TELEGRAM_CHAT_ID);
             }
         }
     } catch (e) {
