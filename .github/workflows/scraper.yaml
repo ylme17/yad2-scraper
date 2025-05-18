@@ -16,8 +16,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Ensure we fetch all history
 
       - name: Install chrome dependencies
         run: |
@@ -44,14 +42,13 @@ jobs:
             echo "Scraper failed!"
             exit 1
           fi
-          echo "::set-output name=has_new_data::true" # Always set to true, the logic is now in the js
-          echo "SCRAPER_OUTPUT=true" >> $GITHUB_OUTPUT # Debug
 
-      - name: Push new json data
+      - name: Push new json data if needed
         run: |
-          echo "Pushing to GitHub..."
-          git add data/*.json 
-          DATE=$(TZ=':Asia/Jerusalem' date +"%F %H:%M:%S")
-          git commit -m "updated data - $DATE"
-          git push
-
+          if [ -f ./push_me ]; then
+            echo "Pushing to GitHub..."
+            git add data/*.json 
+            DATE=$(TZ=':Asia/Jerusalem' date +"%F %H:%M:%S")
+            git commit -m "updated data - $DATE"
+            git push
+          fi
