@@ -84,7 +84,6 @@ const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
     let savedImgUrls = new Set();
     let newItems = [];
-    let hasNew = false;
 
     try {
         if (fs.existsSync(filePath)) {
@@ -121,24 +120,22 @@ const checkIfHasNewItem = async (data, topic) => {
     data.forEach(item => {
         if (!savedImgUrls.has(item.img)) {
             newItems.push(item.lnk);
-            hasNew = true;
         }
     });
 
     // Write all current items (new and old) to the file, overwriting the old content
-    const saveData = data.map(item => item.img); // Extract only image URLs for saving
+    const saveData = data.map(item => item.img);
     fs.writeFileSync(filePath, JSON.stringify(saveData, null, 2));
 
-    return { hasNew, newItems };
+    return newItems;
 }
 
 // Main function to scrape and send notifications
 const scrape = async (topic, url, telenode, TELEGRAM_CHAT_ID) => {
     try {
-        const scrapeDataResults = await scrapeItemsAndExtractImgUrls(url);
-        const { hasNew, newItems } = await checkIfHasNewItem(scrapeDataResults, topic); // Receive the hasNew flag
+        const newItems = await checkIfHasNewItem(await scrapeItemsAndExtractImgUrls(url), topic);
 
-        if (hasNew) { // Use the hasNew flag
+        if (newItems.length > 0) {
             const messageText = `${newItems.length} new items found for ${topic}:`;
             await telenode.sendTextMessage(messageText, TELEGRAM_CHAT_ID);
             for (const msg of newItems) {
