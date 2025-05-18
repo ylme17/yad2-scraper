@@ -90,7 +90,7 @@ const checkIfHasNewItem = async (data, topic) => {
         savedUrls = require(filePath);
     } catch (e) {
         if (e.code === "MODULE_NOT_FOUND") {
-            fs.mkdirSync('data');
+		  if (!fs.existsSync('data')) fs.mkdirSync('data');
             fs.writeFileSync(filePath, '[]');
         } else {
             console.log(e);
