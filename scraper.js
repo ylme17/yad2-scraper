@@ -159,7 +159,7 @@ const scrape = async (topic, url, telenode, TELEGRAM_CHAT_ID) => {
             const messageText = `${newItems.length} new items found for ${topic}:`;
             await telenode.sendTextMessage(messageText, TELEGRAM_CHAT_ID);
             for (const msg of newItems) {
-                await telenode.sendTextMessage(msg, TELEGRAM_CHAT_ID);
+                //await telenode.sendTextMessage(msg, TELEGRAM_CHAT_ID);
             }
         }
     } catch (e) {
