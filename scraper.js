@@ -18,9 +18,9 @@ const getYad2Response = async (url) => {
         await page.goto(url, { waitUntil: 'domcontentloaded' });
 
         try {
-            await page.waitForSelector('.feed_item', { timeout: 15000 });
+            await page.waitForSelector('img', { timeout: 15000 });
         } catch (e) {
-            console.warn(`Warning: .feed_item not found on ${url} within timeout. Error: ${e.message}`);
+            console.warn(`Warning: "img" not found on ${url} within timeout. Error: ${e.message}`);
         }
         const content = await page.content();
         return content;
@@ -54,7 +54,7 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
     const $feedItems = $(stages[type][0]);
     if ($feedItems.length === 0) throw new Error("Could not find feed items");
 
-    const data = []; // תיקון: הגדרת מערך data כאן
+    const data = [];
 
     if (type === types.ITEMS) {
         $feedItems.find(stages[type][1]).each((i, el) => {
@@ -83,7 +83,7 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
 const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
     let savedImgUrls = new Set();
-    let newItems = []; // Initialize newItems here
+    let newItems = [];
     let hasNew = false;
 
     try {
@@ -91,7 +91,7 @@ const checkIfHasNewItem = async (data, topic) => {
             const fileContent = fs.readFileSync(filePath, 'utf8');
             try {
                 const parsedData = JSON.parse(fileContent);
-                if (Array.isArray(parsedData)) { // Check if parsedData is an array
+                if (Array.isArray(parsedData)) {
                     parsedData.forEach(item => {
                         if (item && item.img) {
                             savedImgUrls.add(item.img);
@@ -114,7 +114,7 @@ const checkIfHasNewItem = async (data, topic) => {
         throw new Error(`Could not read / create ${filePath}`);
     }
 
-    newItems = []; // Reset newItems array
+    newItems = [];
     const currentImgUrls = data.map(item => item.img);
 
     // Find new items
@@ -129,7 +129,7 @@ const checkIfHasNewItem = async (data, topic) => {
     const saveData = data.map(item => item.img); // Extract only image URLs for saving
     fs.writeFileSync(filePath, JSON.stringify(saveData, null, 2));
 
-    return { hasNew, newItems }; // Return both flags
+    return { hasNew, newItems };
 }
 
 // Main function to scrape and send notifications
