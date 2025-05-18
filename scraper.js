@@ -85,29 +85,13 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
 // Function to check if there are new items
 const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
-    let savedImgUrls = [];
+    let savedUrls = [];
 
     try {
         if (fs.existsSync(filePath)) {
-            const fileContent = fs.readFileSync(filePath, 'utf8');
-            try {
-                const parsedData = JSON.parse(fileContent);
-                if (Array.isArray(parsedData)) {
-                    parsedData.forEach(item => {
-                        if (item && item.img) {
-                            savedImgUrls.add(item.img);
-                        }
-                    });
-                } else {
-                    console.warn(`Warning: ${filePath} does not contain an array. Overwriting.`);
-                    savedImgUrls = [];
-                }
-            } catch (parseError) {
-                console.error(`Error parsing JSON from ${filePath}:`, parseError);
-                savedImgUrls = [];
-            }
+            savedUrls = require(filePath);            
         } else {
-            if (!fs.existsSync('data')) fs.mkdirSync('data');
+            fs.mkdirSync('data');
             fs.writeFileSync(filePath, '[]');
         }
     } catch (e) {
