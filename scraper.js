@@ -63,7 +63,6 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
             const imgSrc = $productBlock.find('img').attr('src');
             //if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
             if (imgSrc && lnkSrc) data.push(imgSrc);
-            console.log(`data = ${data}`);
         });
     } else if (type === types.CARS || type === types.NADLAN) {
         const $imageList = $feedItems.find(stages[type][1]);
@@ -75,7 +74,6 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
             const lnkSrc = $(linkEl).attr('href') || $(linkEl).find('a').attr('href');
             //if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
             if (imgSrc && lnkSrc) data.push(imgSrc);
-            console.log(`data = ${data}`);
         });
     } else {
         throw new Error("Cannot scrape unknown type, selectors are not defined.");
@@ -147,6 +145,7 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const scrape = async (topic, url, telenode, TELEGRAM_CHAT_ID) => {
     try {
         const scrapeImgResults = await scrapeItemsAndExtractImgUrls(url);
+        console.log(`scrapeImgResults = ${scrapeImgResults}`);
         const newItems = await checkIfHasNewItem(scrapeImgResults, topic);
 
         if (newItems.length > 0) {
