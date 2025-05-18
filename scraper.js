@@ -69,21 +69,13 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
         const $linkList = $feedItems.find(stages[type][2]);
         if ($imageList.length === 0 || $imageList.length !== $linkList.length) throw new Error(`Could not read lists properly for type ${type}`);
         
-        $imageList.each((i, _) => {
-        const imgSrc = $($imageList[i]).find("img").attr('src');
-        const lnkSrc = $($linkList[i]).find("a").attr('href');
-
-            if (imgSrc && lnkSrc) {
-                data.push({'img':imgSrc, 'lnk':  new URL(lnkSrc, url).href})
-            }
-        });
-        /*$imageList.each((i, imgEl) => {
+        $imageList.each((i, imgEl) => {
             const imgSrc = $(imgEl).attr('src') || $(imgEl).find('img').attr('src');
             const linkEl = $linkList[i];
             const lnkSrc = $(linkEl).attr('href') || $(linkEl).find('a').attr('href');
             //if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
             if (imgSrc && lnkSrc) data.push(imgSrc);
-        });*/
+        });
     } else {
         throw new Error("Cannot scrape unknown type, selectors are not defined.");
     }
@@ -124,20 +116,20 @@ const checkIfHasNewItem = async (imgUrls, topic) => {
     }
 
     let shouldUpdateFile = false;
-    savedImgUrls = savedImgUrls.filter(savedUrl => {
-        shouldUpdateFile = true;
+    let imgUrls = data.map(a => a['img']);
+    savedUrls = savedUrls.filter(savedUrl => {
         return imgUrls.includes(savedUrl);
     });
     const newItems = [];
-    imgUrls.forEach(url => {
-        if (!savedImgUrls.includes(url)) {
-            savedImgUrls.push(url);
-            newItems.push(url);
+    data.forEach(url => {
+        if (!savedUrls.includes(url['img'])) {
+            savedUrls.push(url['img']);
+            newItems.push(url['lnk']);
             shouldUpdateFile = true;
         }
     });
     if (shouldUpdateFile) {
-        const updatedUrls = JSON.stringify(savedImgUrls, null, 2);
+        const updatedUrls = JSON.stringify(savedUrls, null, 2);
         fs.writeFileSync(filePath, updatedUrls);
         await createPushFlagForWorkflow();
     }
