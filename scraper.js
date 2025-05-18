@@ -107,6 +107,7 @@ const checkIfHasNewItem = async (data, topic) => {
                 // throw new Error(`Could not parse ${filePath}`); // Option: Throw error to stop processing
             }
         } else {
+            console.log(`write to file`);
             if (!fs.existsSync('data')) fs.mkdirSync('data');
             fs.writeFileSync(filePath, '[]');
         }
@@ -142,6 +143,7 @@ const checkIfHasNewItem = async (data, topic) => {
 
     if (finalSavedUrlsArray.length !== originalSavedUrlsArray.length ||
         !finalSavedUrlsArray.every(item => originalSavedUrlsArray.includes(item))) {
+        console.log(`write to file2`);
         fs.writeFileSync(filePath, JSON.stringify(finalSavedUrlsArray, null, 2));
     }
     return newItems;
