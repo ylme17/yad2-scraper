@@ -84,7 +84,6 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
             const lnkSrc = $productBlock.attr('href');
             const imgSrc = $productBlock.find('img').attr('src');
             if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
-            //if (imgSrc && lnkSrc) data.push(imgSrc);
         });
     } else if (type === types.CARS || type === types.NADLAN) {
         const $imageList = $feedItems.find(stages[type][1]);
@@ -96,7 +95,6 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
             const linkEl = $linkList[i];
             const lnkSrc = $(linkEl).attr('href') || $(linkEl).find('a').attr('href');
             if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
-            //if (imgSrc && lnkSrc) data.push(imgSrc);
         });
     } else {
         throw new Error("Cannot scrape unknown type, selectors are not defined.");
