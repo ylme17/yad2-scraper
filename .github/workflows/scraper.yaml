@@ -35,11 +35,15 @@ jobs:
       - name: Run scraper
         id: scraper_run
         run: |
+          echo "STARTING SCRAPER STEP"
           export TELEGRAM_API_TOKEN=${{ secrets.TELEGRAM_API_TOKEN }}
-          export TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
+          export TELEGRAM_CHAT_ID=${{ secrets.CHAT_ID }}
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
           export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+          echo "BEFORE yarn scrape: $(ls -la)" # Debug
           yarn scrape
+          echo "AFTER yarn scrape: $(ls -la)" # Debug
+          echo "AFTER YARN SCRAPE"
           if [ $? -ne 0 ]; then
             echo "Scraper failed!"
             exit 1
@@ -48,7 +52,7 @@ jobs:
           has_new_data=false
           changed_files=$(git diff --name-only)
           echo "DEBUG: Changed files: $changed_files"
-          echo "DEBUG: git diff status: $?" #check status
+          echo "DEBUG: git diff status: $?"
           if [[ "$changed_files" =~ .*\.json$ ]]; then
             has_new_data=true
           fi
