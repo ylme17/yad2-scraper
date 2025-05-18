@@ -86,19 +86,17 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
 const checkIfHasNewItem = async (data, topic) => {
     const filePath = `./data/${topic}.json`;
     let savedUrls = [];
-
     try {
-        if (fs.existsSync(filePath)) {
-            savedUrls = require(filePath);            
-        } else {
+        savedUrls = require(filePath);
+    } catch (e) {
+        if (e.code === "MODULE_NOT_FOUND") {
             fs.mkdirSync('data');
             fs.writeFileSync(filePath, '[]');
+        } else {
+            console.log(e);
+            throw new Error(`Could not read / create ${filePath}`);
         }
-    } catch (e) {
-        console.error(`Error reading/parsing ${filePath}:`, e);
-        throw new Error(`Could not read / create ${filePath}`);
     }
-
     let shouldUpdateFile = false;
     let imgUrls = data.map(a => a['img']);
     savedUrls = savedUrls.filter(savedUrl => {
