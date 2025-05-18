@@ -68,13 +68,22 @@ const scrapeItemsAndExtractImgUrls = async (url) => {
         const $imageList = $feedItems.find(stages[type][1]);
         const $linkList = $feedItems.find(stages[type][2]);
         if ($imageList.length === 0 || $imageList.length !== $linkList.length) throw new Error(`Could not read lists properly for type ${type}`);
-        $imageList.each((i, imgEl) => {
+        
+        $imageList.each((i, _) => {
+        const imgSrc = $($imageList[i]).find("img").attr('src');
+        const lnkSrc = $($linkList[i]).find("a").attr('href');
+
+            if (imgSrc && lnkSrc) {
+                data.push({'img':imgSrc, 'lnk':  new URL(lnkSrc, url).href})
+            }
+        });
+        /*$imageList.each((i, imgEl) => {
             const imgSrc = $(imgEl).attr('src') || $(imgEl).find('img').attr('src');
             const linkEl = $linkList[i];
             const lnkSrc = $(linkEl).attr('href') || $(linkEl).find('a').attr('href');
             //if (imgSrc && lnkSrc) data.push({ 'img': imgSrc, 'lnk': new URL(lnkSrc, url).href });
             if (imgSrc && lnkSrc) data.push(imgSrc);
-        });
+        });*/
     } else {
         throw new Error("Cannot scrape unknown type, selectors are not defined.");
     }
