@@ -113,20 +113,20 @@ const checkIfHasNewItem = async (data, topic) => {
     }
 
     let shouldUpdateFile = false;
-    savedUrls = savedUrls.filter(savedUrl => {
+    savedImgUrls = savedImgUrls.filter(savedUrl => {
         shouldUpdateFile = true;
         return imgUrls.includes(savedUrl);
     });
     const newItems = [];
     imgUrls.forEach(url => {
-        if (!savedUrls.includes(url)) {
-            savedUrls.push(url);
+        if (!savedImgUrls.includes(url)) {
+            savedImgUrls.push(url);
             newItems.push(url);
             shouldUpdateFile = true;
         }
     });
     if (shouldUpdateFile) {
-        const updatedUrls = JSON.stringify(savedUrls, null, 2);
+        const updatedUrls = JSON.stringify(savedImgUrls, null, 2);
         fs.writeFileSync(filePath, updatedUrls);
         await createPushFlagForWorkflow();
     }
