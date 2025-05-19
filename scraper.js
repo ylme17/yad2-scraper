@@ -22,7 +22,9 @@ const userAgents = [
 
 // Function to get a random user agent
 const getRandomUserAgent = () => {
-    return userAgents[Math.floor(Math.random() * userAgents.length)];
+    const userAgent = userAgents[Math.floor(Math.random() * userAgents.length)];
+    console.log(`userAgent = ${userAgent}`);
+    return userAgent;
 };
 
 // Function to get HTML from a web page using Puppeteer
