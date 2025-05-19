@@ -23,7 +23,7 @@ const userAgents = [
 // Function to get a random user agent
 const getRandomUserAgent = () => {
     const userAgent = userAgents[Math.floor(Math.random() * userAgents.length)];
-    console.log(`userAgent = ${userAgent}`);
+    console.log(`userAgent = ${userAgent}`); //For debug
     return userAgent;
 };
 
